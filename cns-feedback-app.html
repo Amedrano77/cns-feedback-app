@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNS Feedback Repository</title>
+    <title>CNS Feedback Repository - Collaborative</title>
+    
     <style>
         * {
             margin: 0;
@@ -23,6 +24,83 @@
             margin: 0 auto;
         }
 
+        /* Auth Container */
+        .auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .auth-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auth-input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-button {
+            padding: 14px;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
         header {
             background: white;
             border-radius: 15px;
@@ -30,6 +108,17 @@
             margin-bottom: 30px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             text-align: center;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-left {
+            flex: 1;
         }
 
         h1 {
@@ -41,6 +130,51 @@
         .subtitle {
             color: #666;
             font-size: 1.1em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: #d4edda;
+            border-radius: 20px;
+            color: #155724;
+            font-size: 0.9em;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .main-content {
@@ -70,16 +204,12 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
             text-align: center;
+            position: relative;
         }
 
         .course-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .course-btn.active {
-            background: linear-gradient(145deg, #764ba2, #667eea);
-            transform: scale(0.98);
         }
 
         .course-number {
@@ -91,6 +221,22 @@
         .course-name {
             font-size: 0.9em;
             opacity: 0.95;
+        }
+
+        .course-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
         }
 
         .view-section {
@@ -120,11 +266,6 @@
             transition: border-color 0.3s;
         }
 
-        .search-bar:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
         .filter-group {
             display: flex;
             gap: 10px;
@@ -139,12 +280,6 @@
             font-size: 1em;
             background: white;
             cursor: pointer;
-            transition: border-color 0.3s;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .btn {
@@ -172,8 +307,9 @@
             color: #333;
         }
 
-        .btn-secondary:hover {
-            background: #e0e0e0;
+        .btn-danger {
+            background: #dc3545;
+            color: white;
         }
 
         .btn-icon {
@@ -192,11 +328,23 @@
             padding: 20px;
             border-left: 4px solid #667eea;
             transition: all 0.3s ease;
+            position: relative;
         }
 
-        .feedback-card:hover {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            transform: translateX(5px);
+        .feedback-card.new-feedback {
+            animation: slideIn 0.5s ease;
+            border-left-color: #28a745;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         .feedback-header {
@@ -253,11 +401,6 @@
             border-radius: 5px;
             font-size: 0.85em;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .copy-btn:hover {
-            background: #764ba2;
         }
 
         .copy-btn.copied {
@@ -278,44 +421,30 @@
             gap: 10px;
         }
 
-        .learning-outcomes {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .outcome-badge {
-            padding: 4px 10px;
-            background: linear-gradient(145deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 15px;
-            font-size: 0.85em;
-        }
-
-        .rating-section {
+        .contributor-info {
             display: flex;
             align-items: center;
             gap: 10px;
+            color: #666;
+            font-size: 0.85em;
         }
 
-        .stars {
+        .contributor-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
             display: flex;
-            gap: 3px;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
         }
 
-        .star {
-            color: #ddd;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .star.filled {
-            color: #ffc107;
-        }
-
-        .star:hover {
-            color: #ffc107;
+        .timestamp {
+            color: #999;
+            font-size: 0.8em;
         }
 
         .performance-badge {
@@ -340,282 +469,18 @@
             color: #721c24;
         }
 
-        /* Module Sequence Visualization */
-        .sequence-view {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .sequence-header {
+        .learning-outcomes {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .module-sequence {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-
-        .module-box {
-            min-width: 200px;
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .module-box:hover {
-            border-color: #667eea;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-        }
-
-        .module-box.active {
-            border-color: #667eea;
-            background: linear-gradient(145deg, #f0f0ff, #fff);
-        }
-
-        .module-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .module-lessons {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 8px;
-        }
-
-        .module-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .module-stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .stat-label {
-            font-size: 0.8em;
-            color: #999;
-        }
-
-        /* Template System */
-        .templates-section {
-            background: #f0f4ff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .templates-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .template-chips {
-            display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
-        .template-chip {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #667eea;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-
-        .template-chip:hover {
-            background: #667eea;
+        .outcome-badge {
+            padding: 4px 10px;
+            background: linear-gradient(145deg, #667eea, #764ba2);
             color: white;
-        }
-
-        .template-chip.selected {
-            background: #667eea;
-            color: white;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
             border-radius: 15px;
-            padding: 30px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            font-size: 1.8em;
-            color: #333;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 2em;
-            color: #999;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .outcomes-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .outcomes-input-group input {
-            flex: 1;
-        }
-
-        .add-outcome-btn {
-            padding: 12px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .add-outcome-btn:hover {
-            background: #764ba2;
-        }
-
-        .outcomes-list {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .outcome-tag {
-            padding: 6px 12px;
-            background: #f0f0f0;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .remove-outcome {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 1.2em;
-            line-height: 1;
-        }
-
-        .remove-outcome:hover {
-            color: #ff4444;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 25px;
+            font-size: 0.85em;
         }
 
         .stats-bar {
@@ -644,65 +509,157 @@
             margin-top: 5px;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
+        .activity-feed {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-text {
+            flex: 1;
+            color: #666;
+        }
+
+        .activity-time {
             color: #999;
+            font-size: 0.85em;
         }
 
-        .empty-state-icon {
-            font-size: 4em;
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .empty-state-text {
-            font-size: 1.2em;
-            margin-bottom: 20px;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
         }
 
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
 
-            header {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
 
-            .btn, .controls, .copy-btn, .stars, .toolbar {
-                display: none !important;
-            }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
 
-            .feedback-card {
-                page-break-inside: avoid;
-                border: 1px solid #ddd;
-                margin-bottom: 15px;
-            }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
 
-            .modal {
-                display: none !important;
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.error {
+            background: #dc3545;
         }
 
         @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
             .controls {
                 flex-direction: column;
                 align-items: stretch;
-            }
-
-            .search-bar {
-                min-width: 100%;
-            }
-
-            .filter-group {
-                width: 100%;
-            }
-
-            select {
-                flex: 1;
             }
 
             .course-grid {
@@ -713,112 +670,125 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>CNS Instructor Feedback Repository</h1>
-            <p class="subtitle">Collaborative Feedback Management System for Canvas LMS</p>
-            <div class="toolbar" style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-                <button class="btn btn-secondary" onclick="exportDatabase()">📥 Export Database</button>
-                <label class="btn btn-secondary" style="margin: 0; cursor: pointer;">
-                    📤 Import Database
-                    <input type="file" accept=".json" style="display: none;" onchange="importDatabase(this.files[0])">
-                </label>
+        <!-- Login/Register Section -->
+        <div id="authSection" class="auth-container">
+            <h2 class="auth-title">CNS Feedback Repository</h2>
+            <div id="authError" class="auth-error"></div>
+            
+            <form id="loginForm" class="auth-form">
+                <input type="email" id="loginEmail" class="auth-input" placeholder="Email" required>
+                <input type="password" id="loginPassword" class="auth-input" placeholder="Password" required>
+                <button type="submit" class="auth-button">Sign In</button>
+            </form>
+            
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <input type="text" id="registerName" class="auth-input" placeholder="Full Name" required>
+                <input type="email" id="registerEmail" class="auth-input" placeholder="Email" required>
+                <input type="password" id="registerPassword" class="auth-input" placeholder="Password (min 6 characters)" required>
+                <button type="submit" class="auth-button">Create Account</button>
+            </form>
+            
+            <div class="auth-switch">
+                <span id="authSwitchText">Don't have an account? </span>
+                <a href="#" id="authSwitchLink" onclick="toggleAuthMode(); return false;">Sign Up</a>
             </div>
-        </header>
+        </div>
 
-        <div class="main-content">
-            <!-- Home View with Course Selection -->
-            <div id="homeView" class="view-section active">
-                <h2 style="margin-bottom: 25px; color: #333;">Select a Course</h2>
-                <div class="course-grid" id="courseGrid">
-                    <!-- Courses will be dynamically inserted here -->
-                </div>
-
-                <div class="stats-bar">
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalFeedback">0</div>
-                        <div class="stat-label">Total Feedback Entries</div>
+        <!-- Main App -->
+        <div id="appSection" style="display: none;">
+            <header>
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1>CNS Feedback Repository</h1>
+                        <p class="subtitle">Real-time Collaborative Feedback System</p>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalCourses">18</div>
-                        <div class="stat-label">Active Courses</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalInstructors">0</div>
-                        <div class="stat-label">Contributing Instructors</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="avgRating">0.0</div>
-                        <div class="stat-label">Average Rating</div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <div class="online-indicator">
+                            <div class="online-dot"></div>
+                            <span id="onlineCount">1 online</span>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div>
+                                <div id="userName" style="font-weight: 600;">User</div>
+                                <div style="font-size: 0.85em; color: #666;">Instructor</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="signOut()">Sign Out</button>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <!-- Course View with Feedback -->
-            <div id="courseView" class="view-section">
-                <div class="controls">
-                    <button class="btn btn-secondary" onclick="goHome()">← Back to Courses</button>
-                    <input type="text" class="search-bar" id="searchInput" placeholder="Search feedback..." onkeyup="filterFeedback()">
-                    <div class="filter-group">
-                        <select id="typeFilter" onchange="filterFeedback()">
-                            <option value="">All Types</option>
-                            <option value="quiz">Quiz</option>
-                            <option value="lab">Lab</option>
-                            <option value="check for understanding">Check for Understanding</option>
-                            <option value="mastery_lab">Mastery Assessment Lab</option>
-                            <option value="mastery_exam">Mastery Assessment Exam</option>
-                            <option value="discussion">Discussion</option>
-                        </select>
-                        <select id="performanceFilter" onchange="filterFeedback()">
-                            <option value="">All Performance Levels</option>
-                            <option value="excellent">Excellent</option>
-                            <option value="satisfactory">Satisfactory</option>
-                            <option value="needs-improvement">Needs Improvement</option>
-                        </select>
-                        <button class="btn btn-primary" onclick="openAddModal()">+ Add Feedback</button>
-                        <button class="btn btn-secondary btn-icon" onclick="toggleSequenceView()" title="Module View">📊</button>
-                        <button class="btn btn-secondary btn-icon" onclick="openTemplates()" title="Templates">📋</button>
-                        <button class="btn btn-secondary btn-icon" onclick="printView()" title="Print">🖨️</button>
+            <div class="main-content">
+                <!-- Home View -->
+                <div id="homeView" class="view-section active">
+                    <h2 style="margin-bottom: 25px; color: #333;">Select a Course</h2>
+                    <div class="course-grid" id="courseGrid"></div>
+                    
+                    <div class="stats-bar">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalFeedback">0</div>
+                            <div class="stat-label">Total Feedback</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalCourses">18</div>
+                            <div class="stat-label">Courses</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalInstructors">0</div>
+                            <div class="stat-label">Instructors</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayCount">0</div>
+                            <div class="stat-label">Added Today</div>
+                        </div>
                     </div>
-                </div>
 
-                <h2 id="courseTitle" style="margin-bottom: 20px; color: #333;"></h2>
-                
-                <!-- Module Sequence Visualization -->
-                <div id="sequenceView" class="sequence-view" style="display: none;">
-                    <div class="sequence-header">
-                        <h3>Module Sequence Overview</h3>
-                        <button class="btn btn-secondary" onclick="toggleSequenceView()">Close</button>
-                    </div>
-                    <div id="moduleSequence" class="module-sequence">
-                        <!-- Module boxes will be inserted here -->
+                    <!-- Activity Feed -->
+                    <div class="activity-feed">
+                        <h3 style="margin-bottom: 15px;">Recent Activity</h3>
+                        <div id="activityFeed">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p>Loading activity...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Template System -->
-                <div id="templatesSection" class="templates-section" style="display: none;">
-                    <div class="templates-header">
-                        <h3>Feedback Templates</h3>
-                        <button class="btn btn-secondary" onclick="closeTemplates()">✕</button>
+                <!-- Course View -->
+                <div id="courseView" class="view-section">
+                    <div class="controls">
+                        <button class="btn btn-secondary" onclick="goHome()">← Back</button>
+                        <input type="text" class="search-bar" id="searchInput" placeholder="Search feedback..." onkeyup="filterFeedback()">
+                        <div class="filter-group">
+                            <select id="typeFilter" onchange="filterFeedback()">
+                                <option value="">All Types</option>
+                                <option value="quiz">Quiz</option>
+                                <option value="lab">Lab</option>
+                                <option value="check for understanding">Check for Understanding</option>
+                                <option value="mastery_lab">Mastery Lab</option>
+                                <option value="mastery_exam">Mastery Exam</option>
+                                <option value="discussion">Discussion</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="openAddModal()">+ Add Feedback</button>
+                        </div>
                     </div>
-                    <div class="template-chips" id="templateChips">
-                        <!-- Template chips will be inserted here -->
-                    </div>
-                </div>
-                
-                <div id="feedbackContainer" class="feedback-grid">
-                    <!-- Feedback cards will be dynamically inserted here -->
-                </div>
 
-                <div id="emptyState" class="empty-state" style="display: none;">
-                    <div class="empty-state-icon">📝</div>
-                    <div class="empty-state-text">No feedback entries found</div>
-                    <button class="btn btn-primary" onclick="openAddModal()">Add First Feedback</button>
+                    <h2 id="courseTitle" style="margin-bottom: 20px; color: #333;"></h2>
+                    
+                    <div id="feedbackContainer" class="feedback-grid">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading feedback...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add/Edit Feedback Modal -->
+    <!-- Add Feedback Modal -->
     <div id="feedbackModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -827,22 +797,17 @@
             </div>
             <form id="feedbackForm" onsubmit="saveFeedback(event)">
                 <div class="form-group">
-                    <label for="courseNumber">Course Number</label>
-                    <select id="courseNumber" required>
-                        <option value="">Select Course</option>
-                    </select>
+                    <label for="courseNumber">Course</label>
+                    <select id="courseNumber" required></select>
                 </div>
-
                 <div class="form-group">
                     <label for="module">Module</label>
                     <input type="number" id="module" required min="1">
                 </div>
-
                 <div class="form-group">
                     <label for="lessonNumber">Lesson Number</label>
                     <input type="text" id="lessonNumber" placeholder="e.g., 1, 1a, 2b">
                 </div>
-
                 <div class="form-group">
                     <label for="assignmentType">Assignment Type</label>
                     <select id="assignmentType" required>
@@ -855,22 +820,14 @@
                         <option value="discussion">Discussion</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="assignmentName">Assignment Name</label>
                     <input type="text" id="assignmentName" required>
                 </div>
-
                 <div class="form-group">
-                    <label for="assignmentDescription">Assignment Description</label>
-                    <textarea id="assignmentDescription"></textarea>
+                    <label for="feedbackText">Feedback Text</label>
+                    <textarea id="feedbackText" required placeholder="Enter feedback for Canvas..."></textarea>
                 </div>
-
-                <div class="form-group">
-                    <label for="feedbackText">Feedback Text (for Canvas)</label>
-                    <textarea id="feedbackText" required placeholder="Enter the feedback text that will be copied to Canvas..."></textarea>
-                </div>
-
                 <div class="form-group">
                     <label for="performanceLevel">Performance Level</label>
                     <select id="performanceLevel" required>
@@ -880,27 +837,7 @@
                         <option value="needs-improvement">Needs Improvement</option>
                     </select>
                 </div>
-
-                <div class="form-group">
-                    <label>Learning Outcomes</label>
-                    <div class="outcomes-input-group">
-                        <input type="text" id="outcomeInput" placeholder="Enter learning outcome">
-                        <button type="button" class="add-outcome-btn" onclick="addOutcome()">Add</button>
-                    </div>
-                    <div id="outcomesList" class="outcomes-list"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="instructorFirstName">Instructor First Name</label>
-                    <input type="text" id="instructorFirstName">
-                </div>
-
-                <div class="form-group">
-                    <label for="instructorLastName">Instructor Last Name</label>
-                    <input type="text" id="instructorLastName">
-                </div>
-
-                <div class="form-actions">
+                <div style="display: flex; gap: 15px; justify-content: flex-end;">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Feedback</button>
                 </div>
@@ -908,8 +845,30 @@
         </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // Course list from your spreadsheet
+        // ============================================
+        // FIREBASE CONFIGURATION - MUST BE UPDATED
+        // ============================================
+        const firebaseConfig = {
+    apiKey: "AIzaSyACTlZBz1-tMBDdUIL62vYHHXO36f-N-gE",
+    authDomain: "cns-feedback-app.firebaseapp.com",
+    projectId: "cns-feedback-app",
+    storageBucket: "cns-feedback-app.firebasestorage.app",
+    messagingSenderId: "693873157248",
+    appId: "1:693873157248:web:f60754efeb31b0d026b265"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Course list
         const COURSES = [
             { number: 'ITNW 1308', name: 'Client OS' },
             { number: 'ITSC 1325', name: 'PC Hardware' },
@@ -931,106 +890,239 @@
             { number: 'ITNW 2335', name: 'Network Troubleshooting & Support' }
         ];
 
-        // Feedback Templates
-        const FEEDBACK_TEMPLATES = {
-            'excellent_understanding': {
-                name: 'Excellent Understanding',
-                text: 'Excellent work! Your submission demonstrates a thorough understanding of the concepts. Your attention to detail and comprehensive approach to the assignment requirements is commendable.',
-                performance: 'excellent'
-            },
-            'good_effort_minor_issues': {
-                name: 'Good Effort - Minor Issues',
-                text: 'Good effort on this assignment. You\'ve grasped the main concepts well. Please review the feedback for specific areas where minor improvements can be made to strengthen your understanding.',
-                performance: 'satisfactory'
-            },
-            'needs_review': {
-                name: 'Needs Review',
-                text: 'This submission needs additional work. Please review the course materials for this module and consider attending office hours for clarification on the concepts. I\'m here to help you succeed.',
-                performance: 'needs-improvement'
-            },
-            'incomplete_submission': {
-                name: 'Incomplete Submission',
-                text: 'Your submission appears to be incomplete. Please ensure all required components are included and resubmit. Reach out if you need clarification on the assignment requirements.',
-                performance: 'needs-improvement'
-            },
-            'excellent_lab': {
-                name: 'Excellent Lab Work',
-                text: 'Outstanding lab work! Your documentation is thorough, screenshots are clear and properly labeled, and you\'ve demonstrated excellent troubleshooting skills throughout the exercise.',
-                performance: 'excellent'
-            },
-            'quiz_perfect': {
-                name: 'Perfect Quiz Score',
-                text: 'Perfect score! You\'ve clearly mastered the material covered in this module. Keep up the excellent work!',
-                performance: 'excellent'
-            },
-            'discussion_thoughtful': {
-                name: 'Thoughtful Discussion',
-                text: 'Thank you for your thoughtful contribution to the discussion. You\'ve raised important points and engaged meaningfully with your peers\' posts. This kind of engagement enriches our learning community.',
-                performance: 'excellent'
-            },
-            'technical_accuracy': {
-                name: 'Technical Accuracy Issues',
-                text: 'While your effort is appreciated, there are some technical inaccuracies in your work. Please review the specific feedback provided and consult the course materials to clarify these concepts.',
-                performance: 'satisfactory'
-            }
-        };
-
-        // Initialize data storage
-        let feedbackDatabase = JSON.parse(localStorage.getItem('feedbackDB')) || [];
+        let currentUser = null;
         let currentCourse = null;
-        let currentOutcomes = [];
-        let selectedTemplate = null;
+        let feedbackListener = null;
+        let activityListener = null;
 
-        // Initialize with some sample data if database is empty
-        if (feedbackDatabase.length === 0) {
-            feedbackDatabase = [
-                {
-                    id: Date.now(),
-                    courseNumber: 'ITNW 1308',
-                    courseName: 'Client OS',
-                    module: 1,
-                    lessonNumber: '1',
-                    assignmentType: 'quiz',
-                    assignmentName: 'Windows Upgrade',
-                    assignmentDescription: 'Student will perform a quiz over upgrade procedures for Windows',
-                    feedbackText: 'Excellent work on demonstrating your understanding of Windows upgrade procedures. You correctly identified the key differences between in-place upgrades and clean installations, and your answers showed a solid grasp of the compatibility checking process.',
-                    performanceLevel: 'excellent',
-                    learningOutcomes: ['LO1.1', 'LO1.2'],
-                    instructorFirstName: 'Adrian',
-                    instructorLastName: 'Medrano',
-                    rating: 5,
-                    ratingCount: 3
-                }
-            ];
-            localStorage.setItem('feedbackDB', JSON.stringify(feedbackDatabase));
+        // Authentication Functions
+        function toggleAuthMode() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const switchText = document.getElementById('authSwitchText');
+            const switchLink = document.getElementById('authSwitchLink');
+            
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                switchText.textContent = "Don't have an account? ";
+                switchLink.textContent = 'Sign Up';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'flex';
+                switchText.textContent = 'Already have an account? ';
+                switchLink.textContent = 'Sign In';
+            }
+            clearAuthError();
+        }
+
+        function showAuthError(message) {
+            const errorEl = document.getElementById('authError');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function clearAuthError() {
+            const errorEl = document.getElementById('authError');
+            errorEl.classList.remove('show');
+        }
+
+        // Sign In
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                showAuthError(error.message);
+            }
+        });
+
+        // Sign Up
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                // Update user profile with display name
+                await userCredential.user.updateProfile({
+                    displayName: name
+                });
+                // Store user info in Firestore
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    role: 'instructor',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                showAuthError(error.message);
+            }
+        });
+
+        // Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                showApp();
+                updateUserInfo();
+                initializeApp();
+            } else {
+                hideApp();
+            }
+        });
+
+        // Sign Out
+        function signOut() {
+            auth.signOut();
+        }
+
+        function showApp() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('appSection').style.display = 'block';
+        }
+
+        function hideApp() {
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('appSection').style.display = 'none';
+            // Clean up listeners
+            if (feedbackListener) feedbackListener();
+            if (activityListener) activityListener();
+        }
+
+        function updateUserInfo() {
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            
+            userName.textContent = currentUser.displayName || currentUser.email;
+            userAvatar.textContent = (currentUser.displayName || currentUser.email).charAt(0).toUpperCase();
+        }
+
+        // Initialize App
+        function initializeApp() {
+            initializeCourseGrid();
+            loadStats();
+            loadRecentActivity();
+            setupPresence();
         }
 
         // Initialize course grid
         function initializeCourseGrid() {
             const courseGrid = document.getElementById('courseGrid');
             courseGrid.innerHTML = COURSES.map(course => `
-                <button class="course-btn" onclick="loadCourse('${course.number}', '${course.name}')">
+                <button class="course-btn" onclick="loadCourse('${course.number}', '${course.name}')" id="course-${course.number.replace(/\s/g, '-')}">
                     <span class="course-number">${course.number}</span>
                     <span class="course-name">${course.name}</span>
+                    <span class="course-badge" id="badge-${course.number.replace(/\s/g, '-')}" style="display: none;">0</span>
                 </button>
             `).join('');
 
-            // Also populate course select in modal
+            // Populate course select in modal
             const courseSelect = document.getElementById('courseNumber');
             courseSelect.innerHTML = '<option value="">Select Course</option>' + 
                 COURSES.map(course => `<option value="${course.number}">${course.number} - ${course.name}</option>`).join('');
+
+            // Load course counts
+            loadCourseCounts();
         }
 
-        // Update statistics
-        function updateStats() {
-            document.getElementById('totalFeedback').textContent = feedbackDatabase.length;
-            document.getElementById('totalCourses').textContent = COURSES.length;
+        // Load course feedback counts
+        async function loadCourseCounts() {
+            for (const course of COURSES) {
+                const snapshot = await db.collection('feedback')
+                    .where('courseNumber', '==', course.number)
+                    .get();
+                
+                const badge = document.getElementById(`badge-${course.number.replace(/\s/g, '-')}`);
+                if (snapshot.size > 0) {
+                    badge.textContent = snapshot.size;
+                    badge.style.display = 'flex';
+                }
+            }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                // Total feedback
+                const feedbackSnapshot = await db.collection('feedback').get();
+                document.getElementById('totalFeedback').textContent = feedbackSnapshot.size;
+
+                // Total instructors
+                const usersSnapshot = await db.collection('users').get();
+                document.getElementById('totalInstructors').textContent = usersSnapshot.size;
+
+                // Today's count
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todaySnapshot = await db.collection('feedback')
+                    .where('createdAt', '>=', today)
+                    .get();
+                document.getElementById('todayCount').textContent = todaySnapshot.size;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load recent activity
+        function loadRecentActivity() {
+            if (activityListener) activityListener();
             
-            const instructors = new Set(feedbackDatabase.map(f => `${f.instructorFirstName} ${f.instructorLastName}`));
-            document.getElementById('totalInstructors').textContent = instructors.size;
+            activityListener = db.collection('activity')
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .onSnapshot((snapshot) => {
+                    const activityFeed = document.getElementById('activityFeed');
+                    
+                    if (snapshot.empty) {
+                        activityFeed.innerHTML = '<p style="color: #999;">No recent activity</p>';
+                        return;
+                    }
+
+                    activityFeed.innerHTML = snapshot.docs.map(doc => {
+                        const activity = doc.data();
+                        const time = activity.timestamp ? formatTime(activity.timestamp.toDate()) : 'just now';
+                        
+                        return `
+                            <div class="activity-item">
+                                <div class="contributor-avatar">${activity.userName ? activity.userName.charAt(0).toUpperCase() : 'U'}</div>
+                                <div class="activity-text">${activity.text}</div>
+                                <div class="activity-time">${time}</div>
+                            </div>
+                        `;
+                    }).join('');
+                });
+        }
+
+        // Setup presence system
+        function setupPresence() {
+            const presenceRef = db.collection('presence').doc(currentUser.uid);
             
-            const avgRating = feedbackDatabase.reduce((sum, f) => sum + (f.rating || 0), 0) / feedbackDatabase.length || 0;
-            document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+            // Set user as online
+            presenceRef.set({
+                userId: currentUser.uid,
+                userName: currentUser.displayName || currentUser.email,
+                online: true,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Remove presence on disconnect
+            window.addEventListener('beforeunload', () => {
+                presenceRef.delete();
+            });
+
+            // Listen to online users
+            db.collection('presence')
+                .where('online', '==', true)
+                .onSnapshot((snapshot) => {
+                    const count = snapshot.size;
+                    document.getElementById('onlineCount').textContent = `${count} online`;
+                });
         }
 
         // Load course view
@@ -1043,187 +1135,86 @@
             // Set course in modal
             document.getElementById('courseNumber').value = courseNumber;
             
-            displayFeedback();
-            updateModuleSequence();
+            loadFeedback();
         }
 
-        // Go back to home view
+        // Go back to home
         function goHome() {
             document.getElementById('courseView').classList.remove('active');
             document.getElementById('homeView').classList.add('active');
             currentCourse = null;
+            if (feedbackListener) feedbackListener();
         }
 
-        // Display feedback cards
-        function displayFeedback() {
+        // Load feedback for current course
+        function loadFeedback() {
+            if (feedbackListener) feedbackListener();
+            
             const container = document.getElementById('feedbackContainer');
-            const emptyState = document.getElementById('emptyState');
-            
-            const courseFeedback = feedbackDatabase.filter(f => 
-                currentCourse && f.courseNumber === currentCourse.number
-            );
-            
-            if (courseFeedback.length === 0) {
-                container.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            container.style.display = 'grid';
-            emptyState.style.display = 'none';
-            
-            container.innerHTML = courseFeedback.map(feedback => `
-                <div class="feedback-card">
-                    <div class="feedback-header">
-                        <div class="assignment-info">
-                            <div class="assignment-name">${feedback.assignmentName}</div>
-                            <div class="assignment-meta">
-                                <span class="meta-tag">Module ${feedback.module}</span>
-                                ${feedback.lessonNumber ? `<span class="meta-tag">Lesson ${feedback.lessonNumber}</span>` : ''}
-                                <span class="meta-tag">${feedback.assignmentType}</span>
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading feedback...</p></div>';
+
+            feedbackListener = db.collection('feedback')
+                .where('courseNumber', '==', currentCourse.number)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `
+                            <div style="text-align: center; padding: 60px; color: #999;">
+                                <div style="font-size: 4em; margin-bottom: 20px;">📝</div>
+                                <div style="font-size: 1.2em; margin-bottom: 20px;">No feedback entries yet</div>
+                                <button class="btn btn-primary" onclick="openAddModal()">Add First Feedback</button>
                             </div>
-                            ${feedback.assignmentDescription ? `<p style="color: #666; font-size: 0.9em;">${feedback.assignmentDescription}</p>` : ''}
-                        </div>
-                        <span class="performance-badge performance-${feedback.performanceLevel}">
-                            ${feedback.performanceLevel.replace('-', ' ')}
-                        </span>
-                    </div>
-                    
-                    <div class="feedback-content">
-                        <button class="copy-btn" onclick="copyFeedback('${feedback.id}')">Copy</button>
-                        <div class="feedback-text">${feedback.feedbackText}</div>
-                    </div>
-                    
-                    <div class="feedback-footer">
-                        <div class="learning-outcomes">
-                            ${feedback.learningOutcomes.map(lo => `<span class="outcome-badge">${lo}</span>`).join('')}
-                        </div>
-                        <div class="rating-section">
-                            <div class="stars" data-feedback-id="${feedback.id}">
-                                ${generateStars(feedback.rating || 0, feedback.id)}
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = snapshot.docs.map(doc => {
+                        const feedback = doc.data();
+                        const isNew = feedback.createdAt && (Date.now() - feedback.createdAt.toDate().getTime() < 5000);
+                        
+                        return `
+                            <div class="feedback-card ${isNew ? 'new-feedback' : ''}" data-id="${doc.id}">
+                                <div class="feedback-header">
+                                    <div class="assignment-info">
+                                        <div class="assignment-name">${feedback.assignmentName || 'Untitled'}</div>
+                                        <div class="assignment-meta">
+                                            <span class="meta-tag">Module ${feedback.module}</span>
+                                            ${feedback.lessonNumber ? `<span class="meta-tag">Lesson ${feedback.lessonNumber}</span>` : ''}
+                                            <span class="meta-tag">${feedback.assignmentType}</span>
+                                        </div>
+                                    </div>
+                                    <span class="performance-badge performance-${feedback.performanceLevel}">
+                                        ${feedback.performanceLevel?.replace('-', ' ') || ''}
+                                    </span>
+                                </div>
+                                
+                                <div class="feedback-content">
+                                    <button class="copy-btn" onclick="copyFeedback('${doc.id}')">Copy</button>
+                                    <div class="feedback-text">${feedback.feedbackText || ''}</div>
+                                </div>
+                                
+                                <div class="feedback-footer">
+                                    <div class="contributor-info">
+                                        <div class="contributor-avatar">${feedback.instructorName ? feedback.instructorName.charAt(0).toUpperCase() : 'U'}</div>
+                                        <span>${feedback.instructorName || 'Unknown'}</span>
+                                        <span class="timestamp">${feedback.createdAt ? formatTime(feedback.createdAt.toDate()) : ''}</span>
+                                    </div>
+                                    ${feedback.learningOutcomes && feedback.learningOutcomes.length > 0 ? `
+                                        <div class="learning-outcomes">
+                                            ${feedback.learningOutcomes.map(lo => `<span class="outcome-badge">${lo}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
                             </div>
-                            <span style="color: #666; font-size: 0.9em;">(${feedback.ratingCount || 0})</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; color: #999; font-size: 0.85em;">
-                        Contributed by: ${feedback.instructorFirstName} ${feedback.instructorLastName}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Update Module Sequence Visualization
-        function updateModuleSequence() {
-            if (!currentCourse) return;
-            
-            const courseFeedback = feedbackDatabase.filter(f => f.courseNumber === currentCourse.number);
-            const modules = {};
-            
-            // Group feedback by module
-            courseFeedback.forEach(f => {
-                if (!modules[f.module]) {
-                    modules[f.module] = {
-                        number: f.module,
-                        lessons: new Set(),
-                        assignments: [],
-                        excellent: 0,
-                        satisfactory: 0,
-                        needsImprovement: 0
-                    };
-                }
-                if (f.lessonNumber) modules[f.module].lessons.add(f.lessonNumber);
-                modules[f.module].assignments.push(f);
-                
-                if (f.performanceLevel === 'excellent') modules[f.module].excellent++;
-                else if (f.performanceLevel === 'satisfactory') modules[f.module].satisfactory++;
-                else if (f.performanceLevel === 'needs-improvement') modules[f.module].needsImprovement++;
-            });
-            
-            const sequenceContainer = document.getElementById('moduleSequence');
-            const sortedModules = Object.values(modules).sort((a, b) => a.number - b.number);
-            
-            sequenceContainer.innerHTML = sortedModules.map(module => `
-                <div class="module-box" onclick="filterByModule(${module.number})">
-                    <div class="module-number">Module ${module.number}</div>
-                    <div class="module-lessons">Lessons: ${Array.from(module.lessons).sort().join(', ') || 'None'}</div>
-                    <div class="module-stats">
-                        <div class="module-stat">
-                            <div class="stat-value">${module.assignments.length}</div>
-                            <div class="stat-label">Feedbacks</div>
-                        </div>
-                        <div class="module-stat">
-                            <div class="stat-value" style="color: #4caf50;">${module.excellent}</div>
-                            <div class="stat-label">Excellent</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Filter by module
-        function filterByModule(moduleNumber) {
-            document.getElementById('searchInput').value = `Module ${moduleNumber}`;
-            filterFeedback();
-            toggleSequenceView(); // Close the sequence view
-        }
-
-        // Toggle sequence view
-        function toggleSequenceView() {
-            const sequenceView = document.getElementById('sequenceView');
-            sequenceView.style.display = sequenceView.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Template system functions
-        function openTemplates() {
-            const section = document.getElementById('templatesSection');
-            section.style.display = 'block';
-            
-            const chipsContainer = document.getElementById('templateChips');
-            chipsContainer.innerHTML = Object.entries(FEEDBACK_TEMPLATES).map(([key, template]) => `
-                <div class="template-chip" onclick="applyTemplate('${key}')">${template.name}</div>
-            `).join('');
-        }
-
-        function closeTemplates() {
-            document.getElementById('templatesSection').style.display = 'none';
-        }
-
-        function applyTemplate(templateKey) {
-            const template = FEEDBACK_TEMPLATES[templateKey];
-            if (!template) return;
-            
-            document.getElementById('feedbackText').value = template.text;
-            document.getElementById('performanceLevel').value = template.performance;
-            
-            // Highlight selected template
-            document.querySelectorAll('.template-chip').forEach(chip => {
-                chip.classList.remove('selected');
-                if (chip.textContent === template.name) {
-                    chip.classList.add('selected');
-                }
-            });
-            
-            showNotification('Template applied!');
-        }
-
-        // Print view function
-        function printView() {
-            window.print();
-        }
-
-        // Generate star rating HTML
-        function generateStars(rating, feedbackId) {
-            let stars = '';
-            for (let i = 1; i <= 5; i++) {
-                stars += `<span class="star ${i <= rating ? 'filled' : ''}" onclick="rateFeedback('${feedbackId}', ${i})">★</span>`;
-            }
-            return stars;
+                        `;
+                    }).join('');
+                });
         }
 
         // Copy feedback to clipboard
-        function copyFeedback(feedbackId) {
-            const feedback = feedbackDatabase.find(f => f.id == feedbackId);
-            if (!feedback) return;
+        async function copyFeedback(docId) {
+            const doc = await db.collection('feedback').doc(docId).get();
+            const feedback = doc.data();
             
             navigator.clipboard.writeText(feedback.feedbackText).then(() => {
                 const btn = event.target;
@@ -1236,67 +1227,20 @@
             });
         }
 
-        // Rate feedback
-        function rateFeedback(feedbackId, rating) {
-            const feedback = feedbackDatabase.find(f => f.id == feedbackId);
-            if (!feedback) return;
-            
-            // Update rating (simple average for now)
-            const currentTotal = (feedback.rating || 0) * (feedback.ratingCount || 0);
-            feedback.ratingCount = (feedback.ratingCount || 0) + 1;
-            feedback.rating = Math.round((currentTotal + rating) / feedback.ratingCount);
-            
-            localStorage.setItem('feedbackDB', JSON.stringify(feedbackDatabase));
-            displayFeedback();
-            updateStats();
-        }
-
         // Filter feedback
         function filterFeedback() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const typeFilter = document.getElementById('typeFilter').value;
-            const performanceFilter = document.getElementById('performanceFilter').value;
             
             const cards = document.querySelectorAll('.feedback-card');
-            let visibleCount = 0;
             
             cards.forEach(card => {
                 const text = card.textContent.toLowerCase();
                 const hasType = !typeFilter || card.innerHTML.includes(typeFilter);
-                const hasPerformance = !performanceFilter || card.innerHTML.includes(`performance-${performanceFilter}`);
                 const matchesSearch = !searchTerm || text.includes(searchTerm);
                 
-                if (hasType && hasPerformance && matchesSearch) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = (hasType && matchesSearch) ? 'block' : 'none';
             });
-            
-            // Show empty state if no results
-            const emptyState = document.getElementById('emptyState');
-            const container = document.getElementById('feedbackContainer');
-            if (visibleCount === 0 && cards.length > 0) {
-                container.style.display = 'none';
-                emptyState.style.display = 'block';
-                emptyState.innerHTML = `
-                    <div class="empty-state-icon">🔍</div>
-                    <div class="empty-state-text">No feedback matches your filters</div>
-                    <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
-                `;
-            } else if (visibleCount > 0) {
-                container.style.display = 'grid';
-                emptyState.style.display = 'none';
-            }
-        }
-
-        // Clear filters
-        function clearFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('typeFilter').value = '';
-            document.getElementById('performanceFilter').value = '';
-            displayFeedback();
         }
 
         // Modal functions
@@ -1305,79 +1249,52 @@
             if (currentCourse) {
                 document.getElementById('courseNumber').value = currentCourse.number;
             }
-            openTemplates(); // Show templates when adding new feedback
         }
 
         function closeModal() {
             document.getElementById('feedbackModal').classList.remove('active');
             document.getElementById('feedbackForm').reset();
-            currentOutcomes = [];
-            updateOutcomesList();
-            closeTemplates();
-        }
-
-        // Learning outcomes management
-        function addOutcome() {
-            const input = document.getElementById('outcomeInput');
-            const outcome = input.value.trim();
-            
-            if (outcome && !currentOutcomes.includes(outcome)) {
-                currentOutcomes.push(outcome);
-                updateOutcomesList();
-                input.value = '';
-            }
-        }
-
-        function removeOutcome(index) {
-            currentOutcomes.splice(index, 1);
-            updateOutcomesList();
-        }
-
-        function updateOutcomesList() {
-            const list = document.getElementById('outcomesList');
-            list.innerHTML = currentOutcomes.map((outcome, index) => `
-                <span class="outcome-tag">
-                    ${outcome}
-                    <button type="button" class="remove-outcome" onclick="removeOutcome(${index})">&times;</button>
-                </span>
-            `).join('');
         }
 
         // Save feedback
-        function saveFeedback(event) {
+        async function saveFeedback(event) {
             event.preventDefault();
             
-            const formData = {
-                id: Date.now(),
+            const feedbackData = {
                 courseNumber: document.getElementById('courseNumber').value,
                 courseName: getCourseNameByNumber(document.getElementById('courseNumber').value),
                 module: parseInt(document.getElementById('module').value),
                 lessonNumber: document.getElementById('lessonNumber').value,
                 assignmentType: document.getElementById('assignmentType').value,
                 assignmentName: document.getElementById('assignmentName').value,
-                assignmentDescription: document.getElementById('assignmentDescription').value,
                 feedbackText: document.getElementById('feedbackText').value,
                 performanceLevel: document.getElementById('performanceLevel').value,
-                learningOutcomes: [...currentOutcomes],
-                instructorFirstName: document.getElementById('instructorFirstName').value,
-                instructorLastName: document.getElementById('instructorLastName').value,
-                rating: 0,
-                ratingCount: 0,
-                createdAt: new Date().toISOString()
+                instructorId: currentUser.uid,
+                instructorName: currentUser.displayName || currentUser.email,
+                instructorEmail: currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                learningOutcomes: []
             };
-            
-            feedbackDatabase.push(formData);
-            localStorage.setItem('feedbackDB', JSON.stringify(feedbackDatabase));
-            
-            closeModal();
-            if (currentCourse && formData.courseNumber === currentCourse.number) {
-                displayFeedback();
-                updateModuleSequence();
+
+            try {
+                await db.collection('feedback').add(feedbackData);
+                
+                // Add activity
+                await db.collection('activity').add({
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || currentUser.email,
+                    text: `added feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                closeModal();
+                showNotification('Feedback added successfully!');
+                loadStats(); // Refresh stats
+                loadCourseCounts(); // Update course badges
+            } catch (error) {
+                console.error('Error saving feedback:', error);
+                showNotification('Error saving feedback. Please try again.', true);
             }
-            updateStats();
-            
-            // Show success message
-            showNotification('Feedback added successfully!');
         }
 
         // Helper function to get course name
@@ -1386,21 +1303,25 @@
             return course ? course.name : '';
         }
 
+        // Format timestamp
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'just now';
+            if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
+
         // Show notification
-        function showNotification(message) {
+        function showNotification(message, isError = false) {
             const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: #4caf50;
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 2000;
-                animation: slideIn 0.3s ease;
-            `;
+            notification.className = `notification ${isError ? 'error' : ''}`;
             notification.textContent = message;
             document.body.appendChild(notification);
             
@@ -1424,66 +1345,33 @@
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Escape to close modal
             if (e.key === 'Escape' && document.getElementById('feedbackModal').classList.contains('active')) {
                 closeModal();
             }
-            
-            // Ctrl+N to add new feedback when in course view
-            if (e.ctrlKey && e.key === 'n' && currentCourse) {
-                e.preventDefault();
-                openAddModal();
-            }
-            
-            // Ctrl+P to print
-            if (e.ctrlKey && e.key === 'p' && currentCourse) {
-                e.preventDefault();
-                printView();
-            }
         });
 
-        // Allow Enter key to add learning outcome
-        document.getElementById('outcomeInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addOutcome();
-            }
-        });
-
-        // Export functionality (for backup)
-        function exportDatabase() {
-            const dataStr = JSON.stringify(feedbackDatabase, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `feedback_database_${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
+        // Check if Firebase is configured
+        if (firebaseConfig.apiKey === "YOUR-API-KEY") {
+            document.body.innerHTML = `
+                <div style="max-width: 600px; margin: 100px auto; padding: 40px; background: white; border-radius: 15px; text-align: center;">
+                    <h2 style="color: #dc3545; margin-bottom: 20px;">⚠️ Firebase Configuration Required</h2>
+                    <p style="color: #666; margin-bottom: 30px;">
+                        This app requires Firebase to be configured. Please follow these steps:
+                    </p>
+                    <ol style="text-align: left; max-width: 500px; margin: 0 auto;">
+                        <li>Go to <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+                        <li>Create a new project (or use existing)</li>
+                        <li>Enable Authentication (Email/Password)</li>
+                        <li>Enable Firestore Database</li>
+                        <li>Get your configuration from Project Settings</li>
+                        <li>Replace the placeholder values in the firebaseConfig object</li>
+                    </ol>
+                    <p style="color: #999; margin-top: 30px; font-size: 0.9em;">
+                        See the Setup Instructions document for detailed steps
+                    </p>
+                </div>
+            `;
         }
-
-        // Import functionality
-        function importDatabase(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        feedbackDatabase = [...feedbackDatabase, ...importedData];
-                        localStorage.setItem('feedbackDB', JSON.stringify(feedbackDatabase));
-                        updateStats();
-                        displayFeedback();
-                        showNotification('Database imported successfully!');
-                    }
-                } catch (error) {
-                    showNotification('Error importing database. Please check the file format.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        // Initialize the app
-        initializeCourseGrid();
-        updateStats();
     </script>
 </body>
 </html>
