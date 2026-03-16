@@ -825,8 +825,19 @@
                     <input type="text" id="assignmentName" required>
                 </div>
                 <div class="form-group">
+                    <label for="assignmentInstructions">Assignment Instructions (from Canvas)</label>
+                    <textarea id="assignmentInstructions" placeholder="Import from Canvas or paste assignment instructions here..." style="min-height:100px; background:#f8f9fa; font-size:0.9em;"></textarea>
+                </div>
+                <div class="form-group">
                     <label for="feedbackText">Feedback Text</label>
-                    <textarea id="feedbackText" required placeholder="Enter feedback for Canvas..."></textarea>
+                    <textarea id="feedbackText" required placeholder="Click 'Generate Feedback with AI' or type manually..."></textarea>
+                    <button type="button" id="generateAIBtn" onclick="generateAIFeedback()" style="margin-top:10px; width:100%; padding:12px; background:linear-gradient(135deg,#6366f1,#3b82f6); color:white; border:none; border-radius:8px; font-size:1em; font-weight:600; cursor:pointer;">
+                        🤖 Generate Feedback with AI
+                    </button>
+                    <div id="aiGeneratingMsg" style="display:none; text-align:center; padding:10px; color:#667eea; font-size:0.9em;">
+                        <div class="spinner" style="margin:0 auto 8px;"></div>
+                        Claude is writing feedback...
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="performanceLevel">Performance Level</label>
@@ -1541,7 +1552,9 @@ function cvUseAssignment() {
   const nameField = document.getElementById('assignmentName') || document.querySelector('input[placeholder*="ssignment"]');
   const feedbackField = document.getElementById('feedbackText') || document.querySelector('textarea');
   if (nameField) nameField.value = a.name;
-  if (feedbackField) feedbackField.value = desc;
+  const instrField = document.getElementById('assignmentInstructions');
+  if (instrField) instrField.value = desc;
+  if (feedbackField) feedbackField.value = '';
   document.getElementById('canvasPanel').style.display = 'none';
   // Open your existing add feedback modal if it exists
   const addBtn = document.querySelector('button[onclick*="add"], button[onclick*="Add"], #addFeedbackBtn');
@@ -1564,6 +1577,72 @@ function cvStatus(msg, color) {
 }
 function cvShow(id) { document.getElementById(id).style.display = 'block'; }
 function cvHide(id) { document.getElementById(id).style.display = 'none'; }
+
+async function generateAIFeedback() {
+  const instructions = document.getElementById('assignmentInstructions').value.trim();
+  const assignmentName = document.getElementById('assignmentName').value.trim();
+  const performanceLevel = document.getElementById('performanceLevel').value;
+  const feedbackField = document.getElementById('feedbackText');
+
+  if (!instructions) {
+    alert('Please import an assignment from Canvas or paste the assignment instructions first.');
+    return;
+  }
+  if (!performanceLevel) {
+    alert('Please select a Performance Level before generating feedback.');
+    return;
+  }
+
+  // Show loading
+  document.getElementById('generateAIBtn').disabled = true;
+  document.getElementById('generateAIBtn').textContent = '⏳ Generating...';
+  document.getElementById('aiGeneratingMsg').style.display = 'block';
+  feedbackField.value = '';
+
+  const levelMap = {
+    'excellent': 'Excellent — the student performed exceptionally well',
+    'satisfactory': 'Satisfactory — the student met the basic requirements',
+    'needs-improvement': 'Needs Improvement — the student struggled with key concepts'
+  };
+
+  const prompt = `You are a CNS (Computer Networking & Security) instructor writing feedback for a student assignment.
+
+Assignment Name: ${assignmentName}
+Assignment Instructions:
+${instructions}
+
+Performance Level: ${levelMap[performanceLevel]}
+
+Write 3-5 sentences of professional, constructive instructor feedback for a student who performed at the "${performanceLevel}" level on this assignment.
+- Address the student directly using "you"
+- Be specific to the assignment content
+- If Excellent: highlight what they likely did well and encourage continued excellence
+- If Satisfactory: acknowledge what was done well and suggest 1-2 areas to improve
+- If Needs Improvement: be constructive and kind, explain what needs work and how to improve
+- Keep it concise and ready to paste into Canvas SpeedGrader`;
+
+  try {
+    const response = await fetch('/.netlify/functions/generate-feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignmentName, instructions, performanceLevel })
+    });
+
+    const data = await response.json();
+    const feedback = data.feedback || 'Could not generate feedback. Please try again.';
+
+    const data = await response.json();
+    const feedback = data.content?.[0]?.text || 'Could not generate feedback. Please try again.';
+    feedbackField.value = feedback;
+  } catch(e) {
+    alert('Error connecting to AI. Please check your internet connection and try again.');
+    console.error(e);
+  } finally {
+    document.getElementById('generateAIBtn').disabled = false;
+    document.getElementById('generateAIBtn').textContent = '🤖 Generate Feedback with AI';
+    document.getElementById('aiGeneratingMsg').style.display = 'none';
+  }
+}
 </script>
 <!-- ===== END CANVAS INTEGRATION ===== --> 
 </body>
