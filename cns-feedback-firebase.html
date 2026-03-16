@@ -1373,5 +1373,197 @@
             `;
         }
     </script>
+<!-- ===== CANVAS INTEGRATION PANEL ===== -->
+<div id="canvasPanel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; overflow-y:auto;">
+  <div style="max-width:700px; margin:40px auto; background:#1e293b; border-radius:12px; padding:30px; color:#f1f5f9; font-family:'Segoe UI',sans-serif;">
+    
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <h2 style="font-size:1.2rem; font-weight:700;">📚 Import from Canvas</h2>
+      <button onclick="document.getElementById('canvasPanel').style.display='none'" 
+        style="background:none; border:none; color:#94a3b8; font-size:1.4rem; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Settings -->
+    <div style="background:#0f172a; border-radius:8px; padding:16px; margin-bottom:20px;">
+      <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:12px;">
+        ⚙️ <strong style="color:#f1f5f9;">One-time setup:</strong> Enter your Canvas URL and API token. These are saved in your browser.
+      </p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+        <div>
+          <label style="font-size:0.78rem; color:#94a3b8; display:block; margin-bottom:4px;">Canvas URL</label>
+          <input id="cv_url" type="text" placeholder="https://yourschool.instructure.com"
+            style="width:100%; background:#1e293b; border:1px solid #334155; border-radius:6px; color:#f1f5f9; padding:8px 10px; font-size:0.85rem; outline:none;"/>
+        </div>
+        <div>
+          <label style="font-size:0.78rem; color:#94a3b8; display:block; margin-bottom:4px;">API Token</label>
+          <input id="cv_token" type="password" placeholder="Paste your Canvas API token"
+            style="width:100%; background:#1e293b; border:1px solid #334155; border-radius:6px; color:#f1f5f9; padding:8px 10px; font-size:0.85rem; outline:none;"/>
+        </div>
+      </div>
+      <button onclick="cvConnect()" 
+        style="background:#3b82f6; color:#fff; border:none; border-radius:6px; padding:9px 18px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+        🔗 Connect to Canvas
+      </button>
+      <span id="cv_status" style="font-size:0.8rem; color:#94a3b8; margin-left:12px;"></span>
+    </div>
+
+    <!-- Course + Assignment Selectors -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+      <div>
+        <label style="font-size:0.78rem; color:#94a3b8; display:block; margin-bottom:4px;">Course</label>
+        <select id="cv_courses" onchange="cvLoadAssignments()" disabled
+          style="width:100%; background:#0f172a; border:1px solid #334155; border-radius:6px; color:#f1f5f9; padding:8px 10px; font-size:0.85rem; outline:none;">
+          <option>— Connect first —</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.78rem; color:#94a3b8; display:block; margin-bottom:4px;">Assignment</label>
+        <select id="cv_assignments" onchange="cvLoadDetails()" disabled
+          style="width:100%; background:#0f172a; border:1px solid #334155; border-radius:6px; color:#f1f5f9; padding:8px 10px; font-size:0.85rem; outline:none;">
+          <option>— Choose a course —</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="cv_loader" style="display:none; color:#94a3b8; font-size:0.85rem; margin-bottom:12px;">
+      ⏳ Loading...
+    </div>
+
+    <!-- Assignment Preview -->
+    <div id="cv_preview" style="display:none; background:#0f172a; border-radius:8px; padding:14px; margin-bottom:16px;">
+      <h3 id="cv_prev_title" style="font-size:0.95rem; font-weight:700; color:#3b82f6; margin-bottom:6px;"></h3>
+      <div style="font-size:0.78rem; color:#94a3b8; margin-bottom:10px; display:flex; gap:16px; flex-wrap:wrap;">
+        <span id="cv_prev_due"></span>
+        <span id="cv_prev_pts"></span>
+      </div>
+      <div id="cv_prev_desc" style="font-size:0.85rem; color:#cbd5e1; line-height:1.6; max-height:150px; overflow-y:auto;"></div>
+    </div>
+
+    <!-- Use Assignment Button -->
+    <button id="cv_use_btn" onclick="cvUseAssignment()" disabled
+      style="width:100%; background:#6366f1; color:#fff; border:none; border-radius:8px; padding:12px; font-size:0.95rem; font-weight:700; cursor:pointer; opacity:0.4;">
+      ✅ Use This Assignment
+    </button>
+
+  </div>
+</div>
+
+<!-- Canvas Button (floating) -->
+<button onclick="cvOpenPanel()"
+  style="position:fixed; bottom:30px; right:30px; background:linear-gradient(135deg,#6366f1,#3b82f6); color:#fff; border:none; border-radius:50px; padding:14px 22px; font-size:0.9rem; font-weight:700; cursor:pointer; box-shadow:0 4px 20px rgba(99,102,241,0.5); z-index:9998;">
+  📚 Import from Canvas
+</button>
+
+<script>
+// ── Canvas Integration ──────────────────────────────────────────
+const cvState = { url:'', token:'', assignment:null };
+
+function cvOpenPanel() {
+  document.getElementById('canvasPanel').style.display = 'block';
+  const saved = localStorage.getItem('cnsCanvasSettings');
+  if (saved) {
+    const s = JSON.parse(saved);
+    document.getElementById('cv_url').value = s.url || '';
+    document.getElementById('cv_token').value = s.token || '';
+    cvState.url = s.url; cvState.token = s.token;
+    if (s.url && s.token) cvConnect();
+  }
+}
+
+async function cvConnect() {
+  const url = document.getElementById('cv_url').value.trim().replace(/\/$/,'');
+  const token = document.getElementById('cv_token').value.trim();
+  if (!url || !token) { cvStatus('Please enter both fields.', '#ef4444'); return; }
+  cvState.url = url; cvState.token = token;
+  localStorage.setItem('cnsCanvasSettings', JSON.stringify({url, token}));
+  cvStatus('Connecting...', '#94a3b8');
+  cvShow('cv_loader');
+  try {
+    const courses = await cvGet('/courses?enrollment_type=teacher&per_page=50&state[]=available');
+    const active = courses.filter(c => c.name);
+    const sel = document.getElementById('cv_courses');
+    sel.innerHTML = '<option value="">— Select a course —</option>';
+    active.forEach(c => { const o = document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+    sel.disabled = false;
+    cvStatus(`✅ Connected — ${active.length} courses found`, '#22c55e');
+  } catch(e) {
+    cvStatus('❌ Connection failed. Check your URL and token.', '#ef4444');
+  }
+  cvHide('cv_loader');
+}
+
+async function cvLoadAssignments() {
+  const courseId = document.getElementById('cv_courses').value;
+  if (!courseId) return;
+  const asel = document.getElementById('cv_assignments');
+  asel.disabled = true; asel.innerHTML = '<option>Loading...</option>';
+  document.getElementById('cv_preview').style.display = 'none';
+  document.getElementById('cv_use_btn').disabled = true;
+  document.getElementById('cv_use_btn').style.opacity = '0.4';
+  cvShow('cv_loader');
+  try {
+    const asgns = await cvGet(`/courses/${courseId}/assignments?per_page=100`);
+    asel.innerHTML = '<option value="">— Select an assignment —</option>';
+    asgns.forEach(a => { const o = document.createElement('option'); o.value=a.id; o.textContent=a.name; asel.appendChild(o); });
+    asel.disabled = false;
+  } catch(e) { asel.innerHTML = '<option>Error loading</option>'; }
+  cvHide('cv_loader');
+}
+
+async function cvLoadDetails() {
+  const courseId = document.getElementById('cv_courses').value;
+  const asgId = document.getElementById('cv_assignments').value;
+  if (!asgId) return;
+  cvShow('cv_loader');
+  try {
+    const a = await cvGet(`/courses/${courseId}/assignments/${asgId}`);
+    cvState.assignment = a;
+    document.getElementById('cv_prev_title').textContent = a.name;
+    document.getElementById('cv_prev_due').textContent = a.due_at ? '📅 Due: ' + new Date(a.due_at).toLocaleDateString() : '📅 No due date';
+    document.getElementById('cv_prev_pts').textContent = '🏆 ' + (a.points_possible || '?') + ' pts';
+    const tmp = document.createElement('div'); tmp.innerHTML = a.description || 'No description.';
+    document.getElementById('cv_prev_desc').textContent = tmp.textContent;
+    document.getElementById('cv_preview').style.display = 'block';
+    document.getElementById('cv_use_btn').disabled = false;
+    document.getElementById('cv_use_btn').style.opacity = '1';
+  } catch(e) { cvStatus('Could not load assignment details.', '#ef4444'); }
+  cvHide('cv_loader');
+}
+
+function cvUseAssignment() {
+  const a = cvState.assignment;
+  if (!a) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = a.description || '';
+  const desc = tmp.textContent;
+  // Fill in your existing Add Feedback form fields
+  const nameField = document.getElementById('assignmentName') || document.querySelector('input[placeholder*="ssignment"]');
+  const feedbackField = document.getElementById('feedbackText') || document.querySelector('textarea');
+  if (nameField) nameField.value = a.name;
+  if (feedbackField) feedbackField.value = desc;
+  document.getElementById('canvasPanel').style.display = 'none';
+  // Open your existing add feedback modal if it exists
+  const addBtn = document.querySelector('button[onclick*="add"], button[onclick*="Add"], #addFeedbackBtn');
+  if (addBtn) addBtn.click();
+  alert('✅ Assignment imported! The assignment name and instructions have been filled in for you.');
+}
+
+async function cvGet(endpoint) {
+  const res = await fetch(`${cvState.url}/api/v1${endpoint}`, {
+    headers: { 'Authorization': `Bearer ${cvState.token}` }
+  });
+  if (!res.ok) throw new Error('API error ' + res.status);
+  return res.json();
+}
+
+function cvStatus(msg, color) {
+  const el = document.getElementById('cv_status');
+  el.textContent = msg; el.style.color = color;
+}
+function cvShow(id) { document.getElementById(id).style.display = 'block'; }
+function cvHide(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+<!-- ===== END CANVAS INTEGRATION ===== -->
 </body>
 </html>
