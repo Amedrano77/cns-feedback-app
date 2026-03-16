@@ -1584,13 +1584,35 @@ async function generateAIFeedback() {
   const performanceLevel = document.getElementById('performanceLevel').value;
   const feedbackField = document.getElementById('feedbackText');
 
-  if (!instructions) {
-    alert('Please import an assignment from Canvas or paste the assignment instructions first.');
-    return;
-  }
-  if (!performanceLevel) {
-    alert('Please select a Performance Level before generating feedback.');
-    return;
+  if (!instructions) { alert('Please import an assignment from Canvas or paste the assignment instructions first.'); return; }
+  if (!performanceLevel) { alert('Please select a Performance Level before generating feedback.'); return; }
+
+  document.getElementById('generateAIBtn').disabled = true;
+  document.getElementById('generateAIBtn').textContent = '⏳ Generating...';
+  document.getElementById('aiGeneratingMsg').style.display = 'block';
+  feedbackField.value = '';
+
+  const levelMap = {
+    'excellent': 'Excellent — the student performed exceptionally well',
+    'satisfactory': 'Satisfactory — the student met the basic requirements',
+    'needs-improvement': 'Needs Improvement — the student struggled with key concepts'
+  };
+
+  try {
+    const aiResponse = await fetch('/.netlify/functions/generate-feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assignmentName, instructions, performanceLevel })
+    });
+    const aiData = await aiResponse.json();
+    feedbackField.value = aiData.feedback || 'Could not generate feedback. Please try again.';
+  } catch(e) {
+    alert('Error connecting to AI. Please try again.');
+    console.error(e);
+  } finally {
+    document.getElementById('generateAIBtn').disabled = false;
+    document.getElementById('generateAIBtn').textContent = '🤖 Generate Feedback with AI';
+    document.getElementById('aiGeneratingMsg').style.display = 'none';
   }
 
   // Show loading
