@@ -1481,7 +1481,7 @@ async function cvConnect() {
   cvStatus('Connecting...', '#94a3b8');
   cvShow('cv_loader');
   try {
-    const courses = await cvGet('/courses?enrollment_type=teacher&per_page=50&state[]=available');
+    const courses = await cvGet('/courses?enrollment_type=teacher&per_page=100&state[]=available&state[]=completed&state[]=unpublished&enrollment_state=active');
     const active = courses.filter(c => c.name);
     const sel = document.getElementById('cv_courses');
     sel.innerHTML = '<option value="">— Select a course —</option>';
