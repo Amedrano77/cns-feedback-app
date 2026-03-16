@@ -1550,7 +1550,8 @@ function cvUseAssignment() {
 }
 
 async function cvGet(endpoint) {
-  const res = await fetch(`${cvState.url}/api/v1${endpoint}`, {
+  const proxyUrl = 'https://twilight-wildflower-c067.amedrano5802.workers.dev';
+  const res = await fetch(`${proxyUrl}?base=${encodeURIComponent(cvState.url)}&path=${encodeURIComponent(endpoint)}`, {
     headers: { 'Authorization': `Bearer ${cvState.token}` }
   });
   if (!res.ok) throw new Error('API error ' + res.status);
