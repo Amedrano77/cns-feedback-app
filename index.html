@@ -296,6 +296,7 @@
         let currentCourse = null;
         let feedbackListener = null;
         let activityListener = null;
+        let editingDocId = null;
 
         function toggleAuthMode() {
             const loginForm = document.getElementById('loginForm');
@@ -455,6 +456,7 @@
                                 <span>${f.instructorName || 'Unknown'}</span>
                                 <span class="timestamp">${f.createdAt ? formatTime(f.createdAt.toDate()) : ''}</span>
                             </div>
+                            <button onclick="openEditModal('${doc.id}')" style="padding:6px 14px; background:#f0f0f0; color:#333; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">✏️ Edit</button>
                         </div>
                     </div>`;
                 }).join('');
@@ -479,33 +481,64 @@
         }
 
         function openAddModal() {
+            editingDocId = null;
+            document.querySelector('#feedbackModal .modal-title').textContent = 'Add New Feedback';
             document.getElementById('feedbackModal').classList.add('active');
             if (currentCourse) document.getElementById('courseNumber').value = currentCourse.number;
         }
 
-        function closeModal() { document.getElementById('feedbackModal').classList.remove('active'); document.getElementById('feedbackForm').reset(); }
+        async function openEditModal(docId) {
+            const snap = await db.collection('feedback').doc(docId).get();
+            if (!snap.exists) { showNotification('Feedback not found.', true); return; }
+            const f = snap.data();
+            editingDocId = docId;
+            document.querySelector('#feedbackModal .modal-title').textContent = 'Edit Feedback';
+            document.getElementById('courseNumber').value = f.courseNumber || '';
+            document.getElementById('module').value = f.module || '';
+            document.getElementById('lessonNumber').value = f.lessonNumber || '';
+            document.getElementById('assignmentType').value = f.assignmentType || '';
+            document.getElementById('assignmentName').value = f.assignmentName || '';
+            document.getElementById('assignmentInstructions').value = '';
+            document.getElementById('performanceLevel').value = f.performanceLevel || '';
+            document.getElementById('feedbackText').value = f.feedbackText || '';
+            document.getElementById('feedbackModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('feedbackModal').classList.remove('active');
+            document.getElementById('feedbackForm').reset();
+            editingDocId = null;
+            document.querySelector('#feedbackModal .modal-title').textContent = 'Add New Feedback';
+        }
 
         async function saveFeedback(event) {
             event.preventDefault();
+            const courseNumber = document.getElementById('courseNumber').value;
             const feedbackData = {
-                courseNumber: document.getElementById('courseNumber').value,
-                courseName: COURSES.find(c => c.number === document.getElementById('courseNumber').value)?.name || '',
+                courseNumber: courseNumber,
+                courseName: COURSES.find(c => c.number === courseNumber)?.name || '',
                 module: parseInt(document.getElementById('module').value),
                 lessonNumber: document.getElementById('lessonNumber').value,
                 assignmentType: document.getElementById('assignmentType').value,
                 assignmentName: document.getElementById('assignmentName').value,
                 feedbackText: document.getElementById('feedbackText').value,
                 performanceLevel: document.getElementById('performanceLevel').value,
-                instructorId: currentUser.uid,
-                instructorName: currentUser.displayName || currentUser.email,
-                instructorEmail: currentUser.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                learningOutcomes: []
             };
             try {
-                await db.collection('feedback').add(feedbackData);
-                await db.collection('activity').add({ userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: `added feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                closeModal(); showNotification('Feedback added successfully!'); loadStats(); loadCourseCounts();
+                if (editingDocId) {
+                    await db.collection('feedback').doc(editingDocId).update(feedbackData);
+                    await db.collection('activity').add({ userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: `updated feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal(); showNotification('Feedback updated successfully!');
+                } else {
+                    feedbackData.instructorId = currentUser.uid;
+                    feedbackData.instructorName = currentUser.displayName || currentUser.email;
+                    feedbackData.instructorEmail = currentUser.email;
+                    feedbackData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    feedbackData.learningOutcomes = [];
+                    await db.collection('feedback').add(feedbackData);
+                    await db.collection('activity').add({ userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: `added feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal(); showNotification('Feedback added successfully!'); loadStats(); loadCourseCounts();
+                }
             } catch(error) { console.error('Error saving feedback:', error); showNotification('Error saving feedback. Please try again.', true); }
         }
 
