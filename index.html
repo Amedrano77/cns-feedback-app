@@ -189,9 +189,10 @@
     <div id="feedbackModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Add New Feedback</h2>
+                <h2 class="modal-title" id="modalTitle">Add New Feedback</h2>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
+            <input type="hidden" id="editingDocId" value="">
             <form id="feedbackForm" onsubmit="saveFeedback(event)">
                 <div class="form-group">
                     <label for="courseNumber">Course</label>
@@ -447,6 +448,7 @@
                         </div>
                         <div class="feedback-content">
                             <button class="copy-btn" onclick="copyFeedback('${doc.id}')">Copy</button>
+                            ${f.instructorId === currentUser.uid ? `<button class="copy-btn" style="background:#667eea; color:white; right:90px;" onclick="editFeedback('${doc.id}')">✏️ Edit</button>` : ''}
                             <div class="feedback-text">${f.feedbackText || ''}</div>
                         </div>
                         <div class="feedback-footer">
@@ -479,11 +481,35 @@
         }
 
         function openAddModal() {
+            document.getElementById('editingDocId').value = '';
+            document.getElementById('modalTitle').textContent = 'Add New Feedback';
             document.getElementById('feedbackModal').classList.add('active');
             if (currentCourse) document.getElementById('courseNumber').value = currentCourse.number;
         }
 
-        function closeModal() { document.getElementById('feedbackModal').classList.remove('active'); document.getElementById('feedbackForm').reset(); }
+        function closeModal() {
+            document.getElementById('feedbackModal').classList.remove('active');
+            document.getElementById('feedbackForm').reset();
+            document.getElementById('editingDocId').value = '';
+            document.getElementById('modalTitle').textContent = 'Add New Feedback';
+        }
+
+        async function editFeedback(docId) {
+            const docSnap = await db.collection('feedback').doc(docId).get();
+            if (!docSnap.exists) { showNotification('Could not load feedback entry.', true); return; }
+            const f = docSnap.data();
+            document.getElementById('editingDocId').value = docId;
+            document.getElementById('modalTitle').textContent = 'Edit Feedback';
+            document.getElementById('courseNumber').value = f.courseNumber || '';
+            document.getElementById('module').value = f.module || '';
+            document.getElementById('lessonNumber').value = f.lessonNumber || '';
+            document.getElementById('assignmentType').value = f.assignmentType || '';
+            document.getElementById('assignmentName').value = f.assignmentName || '';
+            document.getElementById('assignmentInstructions').value = f.assignmentInstructions || '';
+            document.getElementById('performanceLevel').value = f.performanceLevel || '';
+            document.getElementById('feedbackText').value = f.feedbackText || '';
+            document.getElementById('feedbackModal').classList.add('active');
+        }
 
         async function saveFeedback(event) {
             event.preventDefault();
@@ -502,10 +528,19 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 learningOutcomes: []
             };
+            const editingDocId = document.getElementById('editingDocId').value;
             try {
-                await db.collection('feedback').add(feedbackData);
-                await db.collection('activity').add({ userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: `added feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                closeModal(); showNotification('Feedback added successfully!'); loadStats(); loadCourseCounts();
+                if (editingDocId) {
+                    // Update existing — don't overwrite createdAt or instructor ownership
+                    const { createdAt, instructorId, instructorName, instructorEmail, ...updateData } = feedbackData;
+                    await db.collection('feedback').doc(editingDocId).update({ ...updateData, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    await db.collection('activity').add({ userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: `edited feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal(); showNotification('Feedback updated successfully!'); loadStats(); loadCourseCounts();
+                } else {
+                    await db.collection('feedback').add(feedbackData);
+                    await db.collection('activity').add({ userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: `added feedback for "${feedbackData.assignmentName}" in ${feedbackData.courseNumber}`, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                    closeModal(); showNotification('Feedback added successfully!'); loadStats(); loadCourseCounts();
+                }
             } catch(error) { console.error('Error saving feedback:', error); showNotification('Error saving feedback. Please try again.', true); }
         }
 
