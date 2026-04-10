@@ -452,7 +452,7 @@
                         <div class="feedback-content">
                             <div class="feedback-actions">
                                 ${f.instructorId === currentUser.uid ? `<button class="edit-btn" onclick="editFeedback('${doc.id}')">✏️ Edit</button>` : ''}
-                                <button class="copy-btn" onclick="copyFeedback('${doc.id}')">Copy</button>
+                                <button class="copy-btn" onclick="copyFeedback(event, '${doc.id}')">Copy</button>
                             </div>
                             <div class="feedback-text">${f.feedbackText || ''}</div>
                         </div>
@@ -468,11 +468,16 @@
             });
         }
 
-        async function copyFeedback(docId) {
+        async function copyFeedback(event, docId) {
+            const btn = event.currentTarget;
             const doc = await db.collection('feedback').doc(docId).get();
             navigator.clipboard.writeText(doc.data().feedbackText).then(() => {
-                const btn = event.target; btn.textContent = 'Copied!'; btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
             });
         }
 
