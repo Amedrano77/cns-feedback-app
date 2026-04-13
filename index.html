@@ -452,7 +452,7 @@
                         <div class="feedback-content">
                             <div class="feedback-actions">
                                 ${f.instructorId === currentUser.uid ? `<button class="edit-btn" onclick="editFeedback('${doc.id}')">✏️ Edit</button>` : ''}
-                                <button class="copy-btn" onclick="copyFeedback(event, '${doc.id}')">Copy</button>
+                                <button class="copy-btn" onclick="copyFeedback('${doc.id}')">Copy</button>
                             </div>
                             <div class="feedback-text">${f.feedbackText || ''}</div>
                         </div>
@@ -468,16 +468,12 @@
             });
         }
 
-        async function copyFeedback(event, docId) {
+        async function copyFeedback(docId) {
             const btn = event.currentTarget;
             const doc = await db.collection('feedback').doc(docId).get();
             navigator.clipboard.writeText(doc.data().feedbackText).then(() => {
-                btn.textContent = 'Copied!';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Copy';
-                    btn.classList.remove('copied');
-                }, 2000);
+                btn.textContent = 'Copied!'; btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
             });
         }
 
@@ -691,26 +687,55 @@
             var feedbackField = document.getElementById('feedbackText');
             if (!instructions) { alert('Please import an assignment from Canvas or paste the assignment instructions first.'); return; }
             if (!performanceLevel) { alert('Please select a Performance Level before generating feedback.'); return; }
-            document.getElementById('generateAIBtn').disabled = true;
-            document.getElementById('generateAIBtn').textContent = '⏳ Generating...';
-            document.getElementById('aiGeneratingMsg').style.display = 'block';
+
+            var btn = document.getElementById('generateAIBtn');
+            var msg = document.getElementById('aiGeneratingMsg');
+            btn.disabled = true;
+            btn.textContent = '⏳ Generating...';
+            msg.style.display = 'block';
+            msg.textContent = 'Claude is writing feedback...';
             feedbackField.value = '';
-            try {
-                var aiResponse = await fetch('/.netlify/functions/generate-feedback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ assignmentName: assignmentName, instructions: instructions, performanceLevel: performanceLevel })
-                });
-                var aiData = await aiResponse.json();
-                feedbackField.value = aiData.feedback || 'Could not generate feedback. Please try again.';
-            } catch(e) {
-                alert('Error connecting to AI. Please try again.');
-                console.error(e);
-            } finally {
-                document.getElementById('generateAIBtn').disabled = false;
-                document.getElementById('generateAIBtn').textContent = '🤖 Generate Feedback with AI';
-                document.getElementById('aiGeneratingMsg').style.display = 'none';
+
+            var maxAttempts = 3;
+            var lastError = null;
+
+            for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+                try {
+                    if (attempt > 1) {
+                        msg.textContent = 'Retrying... (attempt ' + attempt + ' of ' + maxAttempts + ')';
+                        await new Promise(r => setTimeout(r, 1000 * attempt));
+                    }
+                    var controller = new AbortController();
+                    var timeout = setTimeout(() => controller.abort(), 25000);
+                    var aiResponse = await fetch('/.netlify/functions/generate-feedback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ assignmentName, instructions, performanceLevel }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeout);
+                    var aiData = await aiResponse.json();
+                    if (aiData.feedback && aiData.feedback !== 'Could not generate feedback.') {
+                        feedbackField.value = aiData.feedback;
+                        lastError = null;
+                        break;
+                    } else {
+                        lastError = 'No feedback returned';
+                    }
+                } catch(e) {
+                    lastError = e.name === 'AbortError' ? 'Request timed out' : e.message;
+                    console.warn('Attempt ' + attempt + ' failed:', lastError);
+                }
             }
+
+            if (lastError) {
+                feedbackField.value = '';
+                alert('Could not generate feedback after ' + maxAttempts + ' attempts. Please try again in a moment.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🤖 Generate Feedback with AI';
+            msg.style.display = 'none';
         }
     </script>
 
