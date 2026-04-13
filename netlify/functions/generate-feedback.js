@@ -22,14 +22,24 @@ exports.handler = async function(event) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
-    const feedback = data.content?.[0]?.text || 'Could not generate feedback.';
+    console.log('Anthropic response status:', response.status);
+    console.log('Anthropic response body:', JSON.stringify(data));
+
+    const feedback = data.content?.[0]?.text;
+    if (!feedback) {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: 'API error: ' + (data.error?.message || JSON.stringify(data)) })
+      };
+    }
 
     return {
       statusCode: 200,
@@ -38,10 +48,11 @@ exports.handler = async function(event) {
     };
 
   } catch(e) {
-    console.error(e);
+    console.error('Function error:', e.message);
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to generate feedback' })
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: 'Error: ' + e.message })
     };
   }
 };
