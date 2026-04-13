@@ -24,7 +24,7 @@ Performance Level: ${levelMap[performanceLevel]}
 Write 3-5 sentences of professional, constructive instructor feedback for a student who performed at the "${performanceLevel}" level on this assignment.
 - Address the student directly using "you"
 - Be specific to the assignment content
-- If Excellent: highlight what they likely did well and encourage continued excellence
+- If Excellent: highlight what they likely did well, provide feedback on the reason for the assignment and encourage continued excellence
 - If Satisfactory: acknowledge what was done well and suggest 1-2 areas to improve
 - If Needs Improvement: be constructive and kind, explain what needs work and how to improve
 - Keep it concise and ready to paste into Canvas SpeedGrader`;
